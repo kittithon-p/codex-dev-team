@@ -1,6 +1,6 @@
 ---
 name: dev-team
-description: Orchestrate a Codex subagent team for Nayoo feature work, bug fixes, refactors, investigations, reviews, performance/security/DevOps/database/docs tasks, release readiness, or multiple parallel work items. Use when the user explicitly invokes $dev-team or asks for AGENTS/dev-team to receive a task, plan it, delegate to subagents, wait for completion, and report results. Do not use for single-file or tightly-coupled tasks where one agent is enough.
+description: Orchestrate a Codex subagent team for Nayoo feature work, bug fixes, refactors, investigations, reviews, performance/security/DevOps/database/docs tasks, release readiness, management updates, post-mortems, or multiple parallel work items. Use when the user explicitly invokes $dev-team or asks for AGENTS/dev-team to receive a task, plan it, delegate to subagents, wait for completion, apply 9arm disciplines when relevant, and report results. Do not use for single-file or tightly-coupled tasks where one agent is enough.
 ---
 
 # dev-team - Codex subagent orchestration
@@ -180,6 +180,49 @@ Stack routing:
 
 MCP:
 - Use MCPs only when they unlock the task. Jenkins/Grafana or other external systems can be read for diagnosis, but triggering jobs or mutating external systems requires explicit approval.
+
+## 9arm skill routing
+
+Use `thananon/9arm-skills` on demand when installed. If a 9arm skill is relevant but missing, mention it in the plan as optional and continue with the equivalent discipline in this skill. Install command:
+
+```bash
+npx skills add thananon/9arm-skills
+```
+
+9arm skills to route:
+- `debug-mantra`: debugging-heavy bugs, failing tests, runtime errors, stack traces, logs, flaky behavior, regressions, or any "investigate/diagnose/why is this failing" task.
+- `scrutinize`: plan review, PR/diff review, risky implementation review, architecture second opinion, or "is there a simpler way" work.
+- `post-mortem`: after a significant bug fix is known and validated; use for engineering RCA only.
+- `management-talk`: leadership/PM/release/status/Slack/email/standup wording based on engineering content.
+- `qwenchance`: Claude-specific context-budget/handoff discipline; do not invoke directly in Codex unless installed and explicitly requested. Apply the principle instead: bound long loops, summarize state, and create a handoff before context gets too large.
+- `qwen-agent`: Claude/Qwen command delegation; do not route Codex work to it. Use Codex subagents instead.
+
+Agent mapping:
+- `debugger` owns `debug-mantra`. The lead must require: reproducibility first, fail-path tracing second, hypothesis falsification third, and a breadcrumb ledger before proposing a fix.
+- `code-reviewer` owns `scrutinize`. It must question intent, look for a simpler approach, trace the real code path, verify claims, and report actionable findings with evidence.
+- `docs-writer` owns `post-mortem` when available; if no docs-writer subagent exists, the lead asks the fixing owner plus `debugger` for the required facts, then drafts only after validation is proven.
+- `release-mr` or a docs/status owner uses `management-talk` only when the user asks for a leadership, PM, release, Slack, email, standup, or less-technical version.
+
+9arm operating gates:
+- Do not propose a debug fix before a reliable repro or a clearly stated missing-repro blocker.
+- Do not accept a single root-cause hypothesis until it has a disproof attempt or explicit evidence.
+- Do not write `post-mortem` content without all four inputs: reliable repro, known root cause, identified fix, and validation evidence.
+- Do not use `management-talk` for engineering RCA; compose it after the engineering truth exists.
+- Do not let `scrutinize` become style review. It should focus on whether the change should exist, whether it works end to end, and what hidden assumptions or regressions matter.
+
+Planning additions when 9arm applies:
+
+```markdown
+### 9arm discipline routing
+- <skill>: <agent> · why selected · installed/missing · required evidence · fallback if missing
+```
+
+Final report additions when 9arm applies:
+
+```markdown
+### 9arm results
+- <skill>: <agent> · evidence produced · result · gaps/follow-ups
+```
 
 ## Verification rules
 

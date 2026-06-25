@@ -1,7 +1,7 @@
 {
   "name": "dev-team",
   "version": "0.1.0",
-  "description": "Nayoo dev-team workflow for Codex subagent orchestration and parallel work-item delegation.",
+  "description": "Nayoo dev-team workflow for Codex subagent orchestration, 9arm disciplines, and parallel work-item delegation.",
   "author": {
     "name": "Nayoo Engineering"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Dev Team",
     "shortDescription": "Repo-split Codex subagent workflow",
-    "longDescription": "Let a lead AGENT receive work, inspect the repo, plan, delegate to Nayoo repo-specific Codex subagents, wait for results, review/verify, and report outcomes for single or parallel work items.",
+    "longDescription": "Let a lead AGENT receive work, inspect the repo, plan, delegate to Nayoo repo-specific Codex subagents, apply relevant 9arm disciplines, wait for results, review/verify, and report outcomes for single or parallel work items.",
     "developerName": "Nayoo Engineering",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

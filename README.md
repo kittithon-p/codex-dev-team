@@ -17,6 +17,24 @@ and verify the result, then report back.
 - `.agents/plugins/marketplace.json` - repo marketplace entry for the plugin.
 - `.codex/config.toml` - shared agent concurrency defaults.
 
+## Optional 9arm Skills
+
+`$dev-team` can route to `thananon/9arm-skills` when those skills are installed:
+
+- `debug-mantra` for debugging discipline.
+- `scrutinize` for outsider-perspective review.
+- `post-mortem` for validated bug-fix RCA.
+- `management-talk` for leadership, PM, Slack, email, standup, or release updates.
+
+Install them with:
+
+```bash
+npx skills add thananon/9arm-skills
+```
+
+If the 9arm skills are not installed, `$dev-team` still works and applies the
+same discipline from its built-in routing rules.
+
 ## Quick Start
 
 Clone this repo:
@@ -120,4 +138,3 @@ python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.
 python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/dev-team/skills/dev-team
 python3 /Users/kitti/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/dev-team
 ```
-
