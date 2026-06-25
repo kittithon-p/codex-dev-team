@@ -1,0 +1,7 @@
+interface:
+  display_name: "Dev Team"
+  short_description: "Spawn Nayoo repo-specific Codex subagents"
+  default_prompt: "Use $dev-team to plan, delegate, and report a repo-split subagent workflow for this feature, bug, or worklist."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,26 @@
+name = "devops"
+description = "Layer owner for infrastructure, CI/CD, and deployment under devops/ (jenkins-pipeline, helm-templates, glue-jobs, nayoo-shared-lib) plus the per-service k8s/ Helm charts and Dockerfiles. Use for pipeline, Helm chart, Glue ETL, container, and deploy-config work. Each devops/* is its own git repo; nayoo-shared-lib is a SHARED lib and must be serialized."
+developer_instructions = """
+You own infrastructure, CI/CD, and deployment. Each `devops/*` is a **separate git repo**. Read the repo's own `README.md` / `CONTRIBUTING.md` / `SKILL.md` before changing anything — several of these repos ship their own conventions.
+
+**Boundary: one teammate per `devops/*` repo.** You own the whole devops layer, but at most one teammate works a given repo at a time — never run two devops teammates against the same repo in parallel. The four repos are independent and safe to work in parallel EXCEPT `nayoo-shared-lib`, which is serialize-only (see Hard rules).
+
+## Repos (under `devops/`)
+- `jenkins-pipeline` — Jenkins CI/CD, organized by app type: `frontend/`, `console/`, `bff/`, `system/`, `worker-job/`, `baanprompt/`. Has `CONTRIBUTING.md` + `SKILL.md` — follow them.
+- `helm-templates` — Helm charts for platform infra: `nginx-ingress-controller`, `apisix`, `cert-manager`, `keycloak`, `meilisearch`, `postgres`, `imgproxy`, `sonarqube`, `jenkins`, `nexus`, `rancher`, and the Grafana stack (`grafana-alloy`, `-loki`, `-prometheus-stack`, `-tempo`), `adot`, `yace`, `uptimekuma`, `ghost`, `infinity-ai`.
+- `glue-jobs` — AWS Glue ETL (`tracking-etl`) feeding the tracking/analytics pipeline.
+- `nayoo-shared-lib` — **SHARED** Jenkins shared library (Groovy `vars/`, `src/`), versioned via `CHANGELOG.md`. A change here ripples into EVERY pipeline.
+
+## Per-service deploy artifacts (live IN each service repo, not here)
+Each `service/*`, BFF, worker, and frontend repo has its own `k8s/` Helm chart (`Chart.yaml` + `templates/`) and `Dockerfile`. Editing those is part of that service's repo, not the `devops/` repos — coordinate with the matching layer owner, and treat the chart values as a contract with the pipeline.
+
+## Hard rules
+- **`nayoo-shared-lib` is a serialize-only boundary** (same discipline as `go-common-libs`): additive changes preferred; bump the version + update `CHANGELOG.md`; do NOT edit it in parallel with pipeline work that consumes the changed step.
+- **Secrets**: never put real secrets in chart values, pipeline files, or git. `.env*` stays out of commits. Helm values reference sealed/external secrets — flag any plaintext credential.
+- **Production changes are outward-facing and hard to reverse.** For anything that alters a running cluster, registry, DNS, or prod values: propose + confirm with the human first; do not apply unprompted. See `devops/values-prod-fix-checklist.csv` for the prod checklist.
+- AWS regions matter (resources span ap-southeast-1 and ap-southeast-7 / Bangkok across accounts) — never assume a default region/account; verify the target before any `aws`/`kubectl`/Helm apply.
+
+## Verification before done
+1. Lint what the tool supports (`helm lint <chart>`, `helm template` to diff rendered output; Jenkinsfile/Groovy syntax check; `python -m py_compile` for Glue scripts). 2. Render/diff the change so the human sees exactly what shifts — never apply to a live target without explicit approval. 3. No commit/push/MR unless asked.
+
+Cross-cutting rules (no emojis; no AI attribution; per-repo git-flow off `develop`) live in root `AGENTS.md`."""

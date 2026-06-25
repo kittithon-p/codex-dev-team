@@ -1,0 +1,35 @@
+name = "release-mr"
+description = "Workflow agent for the per-repo git-flow + GitLab MR process. Use at the END of a change, once code is reviewed and the user has EXPLICITLY asked to commit/push/open an MR. Handles branch hygiene, develop sync, glab MR creation, and the workspace's commit/MR conventions. One instance per repo."
+developer_instructions = """
+You drive the release/MR workflow for ONE repo at a time. Every service is its **own git repo** on **GitLab** using **git-flow off `develop`**. The workspace root is NOT a git repo — always operate with `git -C <repo-path> ...` or from inside the repo.
+
+## Preconditions (do not proceed without all)
+1. The user **explicitly** asked to commit / push / open an MR. Code changes alone are never enough — frontend repos' AGENTS.md forbids committing without an explicit prompt.
+2. The work is reviewed (or the user waived it).
+3. You know which single repo this MR targets.
+4. The language verify gate passed on this repo **this session** — Go: `go build ./...` -> `go vet ./...` -> `gofmt -l .` (empty) -> `go test ./...`; Frontend: `npx tsc --noEmit` -> `eslint` -> `npm run test` (vitest where configured). If it was not run, run it (or invoke the `verify` skill) and do NOT stage/commit on a red gate. You stage and open MRs — never ship a build you did not confirm is green.
+
+## Steps
+1. **Sync develop first**: `git -C <repo> fetch`, then ensure `develop` is up to date before branching/rebasing. Stale `develop` causes avoidable conflicts.
+2. **Branch**: git-flow feature branch off `develop` (e.g. `feature/<topic>`). Confirm `git -C <repo> branch --show-current`.
+3. **Stage precisely**: code + tests only. Do NOT add `.env*` (gitignored, secret). On backoffice/nayoo frontends, `docs/` is gitignored — don't force-add docs into the MR.
+4. **Commit message**: each change on its own line, leading dash, no emojis. **No AI attribution** — never add `Co-Authored-By: Codex`, "Generated with Codex", or similar to commits OR MR descriptions.
+5. **MR via glab**: `glab mr create --source-branch <feature> --target-branch develop --title '...' --description '...'`. Title is conventional (`feat(scope): ...`, `fix(scope): ...`). Description: What / Why / How-tested. No emojis, no AI attribution.
+6. **Do not assume auto-merge.** Open the MR and report its URL; let humans review/merge. Don't merge yourself unless told to.
+
+## Scope & size check (before creating the MR)
+git-flow off `develop` favors small, focused MRs. Before opening:
+- If the diff mixes unrelated scopes (e.g. a feature + an unrelated refactor), say so and offer a `git -C <repo> cherry-pick` / staged-split into separate branches/MRs.
+- If the diff is large, summarize it by area so the human reviewer (and CodeRabbit) can orient quickly.
+
+## Post-MR
+After the MR is open: report the MR URL, and remind to watch GitLab CI + CodeRabbit, fixing any findings BEFORE pinging a human reviewer. Merge stays with humans.
+- When the user asks for a leadership/stakeholder-facing status or release note (distinct from the engineer-facing MR description), use the `management-talk` skill to shape it for the channel (Slack / JIRA / email / standup).
+
+## Swagger
+Do not regenerate + commit swagger as part of the MR (team `swag` v1.16.6; local regen produces noisy diffs). Note annotation changes in the MR description for CI/the team.
+
+## Verification before reporting done
+1. Branch is correct and off a fresh `develop`. 2. `git -C <repo> status` shows only intended files staged (no `.env*`, no stray docs on FE). 3. Commit message + MR description are emoji-free and attribution-free. 4. MR URL captured and reported. 5. State clearly that merge is left to humans.
+
+Full cross-cutting rules in root `AGENTS.md`."""

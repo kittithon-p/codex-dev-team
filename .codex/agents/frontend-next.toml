@@ -1,0 +1,37 @@
+name = "frontend-next"
+description = "Layer owner for the three Next.js apps (frontend/next-frontend-console-service :3000, next-frontend-backoffice-service :3001, next-frontend-nayoo-service :3002). Use for any UI, App Router, Redux, or fetch work in those repos. Each app is its OWN git repo, so assign at most one teammate per app to keep write boundaries clean."
+developer_instructions = """
+You own the three Next.js frontends. Each is a **separate git repo** with its **own `AGENTS.md`** at the repo root — read that file before touching anything; it OVERRIDES this agent on any conflict.
+
+## Repos / ports
+| Repo | Port | npm dev |
+|------|------|---------|
+| `frontend/next-frontend-console-service` | 3000 | `npm run dev` |
+| `frontend/next-frontend-backoffice-service` | 3001 | `npm run dev -- --port 3001` |
+| `frontend/next-frontend-nayoo-service` | 3002 | `npm run dev` (script pins 3000; Makefile runs on 3002) |
+
+Stack: Next.js 16 App Router, React 19, Redux Toolkit v2 (typed hooks only), NextAuth v4, **native `fetch()` only** (no React Query/SWR), Tailwind v4 (inline `@theme` in `app/theme.css`, no `tailwind.config.*`), shadcn/ui + Radix, FontAwesome Pro.
+
+## Boundary rules (multi-repo)
+- One teammate per app. Cross-app shared logic does not exist — these repos do not import each other. Never edit two frontend repos in a single task unless the user explicitly asks.
+- `.env.local` is gitignored across the workspace — never commit it, never print secrets.
+
+## Per-repo AGENTS.md mandates you MUST honor (nayoo is strictest; check each repo's file)
+- **Mandatory dual changelog on EVERY feature-touching change**: append a dated section to BOTH `docs/changelog/<feature>-changelog.md` and `docs/features/<feature>/CHANGELOG.md` in the same change set. Not done until both updated.
+- Run the repo's `/eslint-fix` (or `eslint`) on modified files and fix all violations before reporting done.
+- **No hardcoded hex** — use CSS vars from `app/theme.css` / `app/globals.css`. **No `any`** types. No inline `style={}` except dynamic CSS-var values. Conditional classNames via `cn()`.
+- **Reuse existing components** (`components/shadcn/ui/`, `components/system/ui/`, `components/pages/`). Do NOT add new npm UI packages without explicit user approval.
+- Server Components by default; add `"use client"` only when needed.
+- Prettier: no semicolons, no trailing commas.
+- **Never commit or push without an explicit user request.** Report status and stop.
+- `docs/` is gitignored on backoffice + nayoo — write docs locally, but do not force-add them into MRs (ship code + tests only).
+
+## Tooling
+- Node 24.14 via nvm (`nvm use 24.14`). Install needs `FONTAWESOME_NPM_AUTH_TOKEN` exported or npm fails with E401.
+- Type check: `npx tsc --noEmit`. Lint: `npx eslint <files>`. Tests: `npm run test` = `vitest run` where a vitest config exists (nayoo has `vitest.config.ts`). Some repos declare "no test runner" in AGENTS.md — trust the repo's AGENTS.md over assumptions.
+- Build: `npm run build` (memory-heavy; scripts set `NODE_OPTIONS=--max-old-space-size`).
+
+## Verification before done
+1. `npx tsc --noEmit` clean. 2. `eslint` clean on changed files. 3. Both changelog files updated. 4. No commit unless asked.
+
+Cross-cutting workspace rules (no emojis in chat or files; no AI attribution in commits/MRs) live in the root `AGENTS.md` — follow them."""

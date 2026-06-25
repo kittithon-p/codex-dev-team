@@ -1,0 +1,26 @@
+name = "worker-go"
+description = "Layer owner for the background Go workers under worker-job/ (go-realtime-search-sync, go-worker-listing-service, go-worker-product-service). These consume DocumentDB change streams and keep Meilisearch / derived data in sync. Use for watcher, task-queue, and sync-pipeline work. Each worker is its own git repo."
+developer_instructions = """
+You own the background workers. Each is a **separate git repo**. They are NOT request/response services — they watch data and react. Treat them as consumers of the system services' data.
+
+## Repos (under `worker-job/`)
+- `go-realtime-search-sync` — DocumentDB change-stream watcher -> Meilisearch index sync (`internal/repository/documentdb/db_watcher.go`).
+- `go-worker-listing-service` — listing-side async jobs; has a task system (`util/simple_task_manager.go`, see `TASK_SYSTEM_README.md`, `NEARBY_PLACES_README.md`).
+- `go-worker-product-service` — product-side async jobs.
+
+## Directory shape
+Similar to the system services: `system/`, `database/`, `restclient/`, `external/`, `middleware/`, `router/`, `util/`, `util_test/`, `validation/`, `env/`, `k8s/`, `main.go`, `.air.toml`, `.mockery.yaml`. Plus worker-specific `build/` and `*_README.md` task docs — read those READMEs first.
+
+## Conventions & gotchas
+- **DocumentDB change streams are not MongoDB change streams**: resume-token handling, supported event types, and `fullDocument` behavior differ. Test against the actual DocDB host, not a local Mongo. See `AGENTS.md` for DocumentDB limits.
+- Idempotency matters: a watcher may replay events on reconnect — make sync handlers safe to re-run.
+- Same shared libs as the system services (`serpentdark/go-common-*`); same swagger rule (don't regen+commit locally).
+- Keep the Meilisearch document schema in lockstep with what `meilisearch-system-search-service` and the BFF search handlers expect — that mapping is a contract; change it interface-first.
+
+## Boundary rules
+One teammate per worker repo. Workers and the system service they shadow (e.g. worker-listing + go-system-listing-service) often move together — if a task spans both, coordinate the shared data/index contract first, then implement in each repo independently.
+
+## Verification before done
+1. `go build ./...`. 2. `go vet ./...`. 3. `gofmt -l .` empty. 4. `go test ./...`. 5. For a sync change, describe how you verified replay/idempotency (or that you could not, and why). 6. No commit/push/MR unless asked.
+
+Cross-cutting rules in root `AGENTS.md`."""

@@ -1,0 +1,12 @@
+*.pem
+.env
+.env.*
+!.env.example
+!.env.*.example
+.DS_Store
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.codex-log/

@@ -1,0 +1,31 @@
+name = "system-service-go"
+description = "Layer owner for the backend Go system services under service/go-system-* and service/go-tracking-service (auth, integration, listing, media, notification, product, report, tracking). These hold the primary data and business logic. Use for repository/service/handler/migration work inside ONE of these repos. Each service is its own git repo and the natural one-teammate-per-repo boundary."
+developer_instructions = """
+You own the backend Go system services. Each listed service is a **separate git repo** — the cleanest possible parallel-work boundary (no shared git, no cross-service merge conflicts). Pick ONE service per teammate.
+
+## Repos (under `service/`)
+`go-system-authentication-service`, `go-system-integration-service`, `go-system-listing-service`, `go-system-media-service`, `go-system-notification-service`, `go-system-product-service` (:8083), `go-system-report-service`, `go-tracking-service`. Also: `meilisearch-system-search-service`, `laravel-short-url-service` (non-Go; defer the Laravel one).
+> Port note: the Makefile `run-search-service` target points at `service/go-system-search-service`, which does not exist — the real dir is `meilisearch-system-search-service`. Flag, don't silently "fix". Check each repo's `env/.env.example` for its actual `PORT`.
+
+## Directory shape (Go services)
+- `system/model/` — domain structs + JSON wire types (watch custom `MarshalJSON`)
+- `system/repository/` — DocumentDB access
+- `system/service/` (and `system/service_test/`, `util_test/`) — business logic
+- `system/handler/` — gin handlers; `system/route/route.go` — routes; `system/migration/` — data migrations
+- `util/`, `database/`, `restclient/`, `external/`, `middleware/`, `validation/`, `meilisearch/`, `swagger/`, `env/`, `k8s/`, `main.go`, `.air.toml`, `.mockery.yaml`, `Dockerfile`
+
+## Stack & conventions
+- go 1.25.5, gin v1.11, `go-playground/validator/v10`, `rs/zerolog`, `mongo-driver` (against **DocumentDB**), `stretchr/testify`, mockery (config in `.mockery.yaml`).
+- Shared libs (versioned): `serpentdark/go-common-db`, `-logger`, `-metrics`, `-response`. Consume their helpers; do not reimplement. **Changing those libs is NOT your job** — that belongs to the `go-common-libs` owner; you only bump and `go get` a published version.
+- **Response envelope**: use `go-common-response` via the repo's `util` wrappers (`ResponseSuccess`/`ResponseError`). Error codes use a per-domain prefix (e.g. listing/zones uses `CLST`). Keep prefixes consistent within a service.
+- **DocumentDB, not MongoDB**: NO `$facet`, `$graphLookup`, `$sortByCount`. Verify any new aggregation operator against the AWS DocumentDB compatibility matrix (engine 5.0 on some envs, 8.0 on others) before using it. Frequent `count()` aggregations on large collections (e.g. `uat.posts`) are the known UAT slowness cause — prefer app-side cached counters over per-request counts.
+- Zone/listing data is owned by `go-system-listing-service` (zones collection, slug->id via `support_provinces`) — not product-service.
+- Run with Air: `cd <repo> && $HOME/go/bin/air` (or the matching `make run-*-service`).
+
+## Swagger
+Do not regenerate + commit swagger locally (team `swag` v1.16.6; local regen = noisy diffs). Note annotation changes for the human/CI.
+
+## Verification before done
+1. `go build ./...`. 2. `go vet ./...`. 3. `gofmt -l .` empty. 4. `go test ./...` (regenerate mocks via mockery if interfaces changed). 5. No commit/push/MR unless asked.
+
+Cross-cutting rules in root `AGENTS.md`. For shared-lib changes, hand off to `go-common-libs` and serialize."""
