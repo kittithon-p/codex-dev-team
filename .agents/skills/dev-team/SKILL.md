@@ -162,7 +162,7 @@ Make the smallest scoped change. Do not commit, push, deploy, or open an MR.
 
 ## Skills and tools
 
-Use skills on demand. Do not preload unrelated skills or mention skills that are not installed.
+Use skills on demand. Do not preload unrelated skills. This internal repo/plugin vendors the focused and specialist skills that `$dev-team` routes to, so teammates should not need separate installs for the bundled workflow.
 
 Default local routing:
 - Planning: `plan-feature`, `branch-strategy` when git workflow matters.
@@ -183,11 +183,7 @@ MCP:
 
 ## 9arm skill routing
 
-Use `thananon/9arm-skills` on demand when installed. If a 9arm skill is relevant but missing, mention it in the plan as optional and continue with the equivalent discipline in this skill. Install command:
-
-```bash
-npx skills add thananon/9arm-skills
-```
+Use the vendored 9arm skills on demand. If a 9arm skill is relevant but missing because the local install was customized or damaged, mention it in the plan and continue with the equivalent discipline in this skill.
 
 9arm skills to route:
 - `debug-mantra`: debugging-heavy bugs, failing tests, runtime errors, stack traces, logs, flaky behavior, regressions, or any "investigate/diagnose/why is this failing" task.

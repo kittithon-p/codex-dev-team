@@ -37,23 +37,19 @@ The repo and plugin include these skills:
 
 Plugin installs expose the same skill set from `plugins/dev-team/skills/`, so teammates do not need to copy separate local skill folders.
 
-## Optional 9arm Skills
+## Vendored Specialist Skills For Internal Team Use
 
-`$dev-team` can route to `thananon/9arm-skills` when those skills are installed:
+This repo vendors selected specialist skills so internal teammates can clone or install the plugin and use the workflow immediately without running separate skill installs.
 
-- `debug-mantra` for debugging discipline.
-- `scrutinize` for outsider-perspective review.
-- `post-mortem` for validated bug-fix RCA.
-- `management-talk` for leadership, PM, Slack, email, standup, or release updates.
+Included specialist packs/categories:
 
-Install them with:
+- 9arm disciplines: `debug-mantra`, `scrutinize`, `post-mortem`, `management-talk`.
+- Git/release workflow: `git-flow`, `branch-strategy`, `commit-plan`, `hotfix-flow`, `merge-conflict-plan`, `finishing-a-development-branch`, `changelog-entry`.
+- Go engineering: `golang-*` skills for style, testing, errors, context, concurrency, database, security, performance, observability, project layout, and common libraries.
+- Frontend/UI: `next-best-practices`, `frontend-design`, `frontend-design-deslop`, `frontend-state-check`, `accessibility-check`, `bundle-size-check`, visual design, image-to-code, and deployment helpers.
+- Review/security/testing/ops: `api-contract-check`, `api-docs`, `authz-review`, `backend-test-strategy`, `caching-review`, `database-change`, `migration-review`, `env-audit`, `log-analysis`, `ci-debug`, `deploy-check`.
 
-```bash
-npx skills add thananon/9arm-skills
-```
-
-If the 9arm skills are not installed, `$dev-team` still works and applies the
-same discipline from its built-in routing rules.
+The source-of-truth copy for sharing lives in both `.agents/skills/` and `plugins/dev-team/skills/`. Keep both in sync when adding or changing a skill.
 
 ## Quick Start
 

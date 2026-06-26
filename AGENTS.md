@@ -18,6 +18,8 @@ Use `$dev-team [feature-or-bug]` when a task benefits from Codex subagents worki
 Rules:
 - `$dev-team` is a repo skill in `.agents/skills/dev-team/`; commit that folder so other teammates can use the same workflow.
 - The same workflow is packaged as a local Codex plugin at `plugins/dev-team/`, exposed through `.agents/plugins/marketplace.json` for teammates who prefer installing it from the Codex plugin directory.
+- This repo vendors the focused and specialist skills used by `$dev-team` in both `.agents/skills/` and `plugins/dev-team/skills/`, so internal teammates can clone or install the plugin and use the workflow without separate skill installs.
+- Use bundled specialist skills on demand only. Do not preload all Go, frontend, 9arm, git/release, security, testing, or ops skills unless the task needs them.
 - Prefer `$dev-team [task]` over `/dev-team`; Codex explicit skill invocation uses `$skill-name`.
 - The dev team is runtime-only. Codex spawns subagents for the current task, waits for their results, and then closes completed agent threads.
 - Do not use a team for single-file or tightly-coupled edits; use one agent or the main session instead.
