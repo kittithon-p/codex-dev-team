@@ -9,13 +9,33 @@ and verify the result, then report back.
 ## What's Included
 
 - `AGENTS.md` - repo-level Codex instructions.
-- `.agents/skills/dev-team/` - the `$dev-team` skill.
+- `.agents/skills/` - repo-scoped Codex skills for `$dev-team` plus focused workflows.
 - `.codex/agents/` - custom Codex subagents such as `architect-planner`,
   `test-qa`, `code-reviewer`, `frontend-next`, `bff-go`, `system-service-go`,
   `worker-go`, and reviewers.
-- `plugins/dev-team/` - installable Codex plugin package.
+- `plugins/dev-team/` - installable Codex plugin package that bundles the same skills.
 - `.agents/plugins/marketplace.json` - repo marketplace entry for the plugin.
 - `.codex/config.toml` - shared agent concurrency defaults.
+
+## Bundled Skills
+
+The repo and plugin include these skills:
+
+- `$dev-team` - lead AGENT orchestration for planning, delegation, review, verification, and reporting.
+- `$plan-feature` - plan a feature or change before implementation.
+- `$implement-feature` - implement a scoped feature/change using repo conventions.
+- `$debug-issue` - investigate and fix bugs with evidence-first debugging.
+- `$verify-change` - run or define focused verification for a change.
+- `$review-diff` - review diffs for correctness, regressions, and missing tests.
+- `$verify` - general verification workflow.
+- `$catchup` - catch up on repo/task state.
+- `$handoff` - produce a handoff summary.
+- `$self-improve` - improve the dev-team setup safely.
+- `$graphify` - route codebase questions through graphify when available.
+- `$documentdb-constraints` - check MongoDB/DocumentDB compatibility constraints.
+- `$nayoo-service-map` - navigate Nayoo service ownership and repo boundaries.
+
+Plugin installs expose the same skill set from `plugins/dev-team/skills/`, so teammates do not need to copy separate local skill folders.
 
 ## Optional 9arm Skills
 
@@ -57,7 +77,7 @@ Copy these paths into the root of the repo or workspace where Codex will work:
 
 ```text
 AGENTS.md
-.agents/skills/dev-team/
+.agents/skills/
 .codex/agents/
 .codex/config.toml
 ```
@@ -76,7 +96,7 @@ plugins/dev-team/
 ```
 
 Restart Codex, open the plugin directory, and install `Dev Team` from the repo
-marketplace.
+marketplace. The plugin bundles every skill listed above, including `$dev-team`.
 
 ## Prompt Shape
 
@@ -127,8 +147,8 @@ migrations, release steps, and cross-service contracts are serialized.
 When changing the dev-team workflow, update both copies:
 
 ```text
-.agents/skills/dev-team/SKILL.md
-plugins/dev-team/skills/dev-team/SKILL.md
+.agents/skills/<skill-name>/SKILL.md
+plugins/dev-team/skills/<skill-name>/SKILL.md
 ```
 
 Then validate:
@@ -136,5 +156,7 @@ Then validate:
 ```bash
 python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/dev-team
 python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/dev-team/skills/dev-team
+python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/<skill-name>
+python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/dev-team/skills/<skill-name>
 python3 /Users/kitti/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/dev-team
 ```
