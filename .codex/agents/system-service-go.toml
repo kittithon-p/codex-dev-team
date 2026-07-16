@@ -1,5 +1,6 @@
 name = "system-service-go"
 description = "Layer owner for the backend Go system services under service/go-system-* and service/go-tracking-service (auth, integration, listing, media, notification, product, report, tracking). These hold the primary data and business logic. Use for repository/service/handler/migration work inside ONE of these repos. Each service is its own git repo and the natural one-teammate-per-repo boundary."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own the backend Go system services. Each listed service is a **separate git repo** — the cleanest possible parallel-work boundary (no shared git, no cross-service merge conflicts). Pick ONE service per teammate.
 

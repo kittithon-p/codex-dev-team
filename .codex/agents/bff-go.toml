@@ -1,5 +1,6 @@
 name = "bff-go"
 description = "Layer owner for the two Go BFF (backend-for-frontend) services that the Next.js apps call. backend-for-frontend/go-process-nayoo-service (:8080, public site) and go-process-backoffice-service (:8088, admin). Use for BFF handler/gateway/route work, request shaping, and BFF<->system-service wiring. Each BFF is its own git repo."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own the two BFFs. Each is a **separate git repo**. They translate frontend requests into calls to the `service/go-system-*` services and shape responses for the UI. They hold no primary data — they are gateways + aggregators.
 

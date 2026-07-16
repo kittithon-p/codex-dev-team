@@ -11,6 +11,23 @@ The main session is the **lead AGENT**. It receives the user's request, inspects
 
 Subagents are **runtime-only**. They are spawned for the current task, inherit the parent session's sandbox and approval policy, do their own model/tool work, and report back. There is no standing team process.
 
+## Runtime and context discipline
+
+- Parallelize independent read-heavy work such as code-path mapping, documentation research, test execution, log analysis, and review. Serialize write-heavy work unless repositories and file ownership are disjoint.
+- Give each subagent one bounded work item, explicit allowed/forbidden scope, and a required result shape. Pass full history only when prior decisions are essential; otherwise use a self-contained prompt or the smallest useful recent context.
+- Treat prompt ownership as coordination, not isolation. Read-only work must use a read-only custom agent/sandbox when available; child agents inherit the parent turn's live sandbox and approval overrides.
+- Use `send_message` to add context to a running turn, `followup_task` to start a new turn on an idle agent, and `interrupt_agent` only when the current work is wrong, unsafe, or obsolete.
+- Wait for every requested result before synthesis. Ask agents for distilled findings, changed files, exact commands/results, blockers, and residual risk; keep raw logs in the agent thread.
+- Respect the live concurrency cap and keep `agents.max_depth = 1`. More fan-out costs more tokens and coordination time; never create recursive delegation by default.
+
+## Codex configuration boundaries
+
+- Follow the active `AGENTS.md` chain from global scope through the closest directory; nearer guidance wins. Keep durable root guidance concise and put task workflows in skills.
+- Keep project `agents.max_threads = 6` and `agents.max_depth = 1` unless a measured need justifies a reviewed config change. The thread cap is a ceiling, not a spawn target.
+- Omit per-agent model and reasoning pins by default so Codex can balance intelligence, speed, and price. Never change or persist Fast mode, service tier, model, or reasoning settings without an explicit user request.
+- Treat execpolicy `.rules` as command capability only. An `allow` decision never waives this skill's explicit-user-request gates for commit, push, merge, deploy, release, or external mutation.
+- If the user requests a persistent rule, use the narrowest prefix with justification plus `match`/`not_match` examples, then validate it with `codex execpolicy check`.
+
 ## Prompt contract
 
 Before spawning, restate or infer:
@@ -88,7 +105,7 @@ Batch rules:
 - If two tasks touch the same repo/file, merge them under one owner or order them sequentially.
 - If a task requires output from another task, record the dependency and do not spawn it early.
 - Keep `agents.max_depth = 1`; child agents should not recursively delegate unless the user explicitly asks.
-- Respect `agents.max_threads`; prefer 3-6 active threads unless the user asks for broader fan-out.
+- Respect the live `agents.max_threads` and runtime slot cap; leave room for the lead and do not assume configured capacity is currently available.
 
 Batch tracking format:
 
@@ -115,6 +132,9 @@ Nayoo repo-specific implementation roles:
 - `release-mr`: git-flow, MR/PR, release/hotfix flow. Use only when explicitly requested.
 
 Generic specialists:
+- `code-mapper`: read-only execution-path and ownership mapping before broad or cross-service changes.
+- `docs-researcher`: read-only verification of version-specific APIs and framework behavior from primary sources.
+- `browser-debugger`: read-only browser reproduction and evidence capture before frontend implementation.
 - `backend-dev`: backend/API/service/auth/business logic when no repo-specific owner fits.
 - `frontend-dev`: UI/client/routing/forms/styling when no repo-specific owner fits.
 - `debugger`: investigation-heavy bugs, failing tests, traces, logs, flaky behavior.
@@ -124,6 +144,8 @@ Generic specialists:
 - `test-author`: tests only.
 
 Always state agents intentionally not used and why.
+
+For browser-visible bugs, run `browser-debugger` before the frontend owner when a reachable target and browser capability exist. The debugger returns a sanitized reproduction packet; the frontend owner makes the scoped fix; `test-qa` reruns the same flow. Do not use browser-debugger for static code review or when the issue already has deterministic test evidence.
 
 ## Contract and ownership rules
 
@@ -142,10 +164,11 @@ Use this shape when spawning each subagent:
 You are <agent-name> for work item <T#>.
 Goal: <specific goal>
 Context: <repos/files/errors/contracts>
+Context handoff: <self-contained facts and decisions; do not dump the full transcript unless required>
 Ownership: you may edit/read <allowed>; do not touch <forbidden>.
 Coordination: ask the lead before changing contracts or overlapping ownership.
 Verification: run/report <commands or checks>, or explain why skipped.
-Output: report changed files, commands run, result, blockers, risks, and follow-ups.
+Output: return a concise summary with changed files, commands run, result, blockers, risks, and follow-ups; keep raw logs in this thread.
 ```
 
 For read-only agents, add:
@@ -169,9 +192,9 @@ Default local routing:
 - Implementation: `implement-feature` plus stack-specific skills.
 - Debugging: `debug-issue`, `debug-mantra` for failing tests/runtime bugs.
 - Review: `review-diff`, `scrutinize` for risky or final review.
-- Verification: `verify-change`, `test-plan`, `regression-check`.
-- Security: `security-audit`, `authz-review`, `secrets-check`.
-- Docs/release: `api-docs`, `changelog-entry`, `release-checklist`, `pr-prep`.
+- Verification: `verify-change`, `backend-test-strategy`.
+- Security: `authz-review`, `env-audit`, plus stack-specific security skills.
+- Docs/release: `api-docs`, `changelog-entry`, `commit-plan`, `finishing-a-development-branch`, `hotfix-flow`.
 
 Stack routing:
 - Go: use relevant Go skills for `.go`, `go.mod`, tests, concurrency, DB, security, performance, observability, CI.
@@ -219,6 +242,31 @@ Final report additions when 9arm applies:
 ### 9arm results
 - <skill>: <agent> · evidence produced · result · gaps/follow-ups
 ```
+
+## Superpowers workflow routing
+
+External pack: `obra/superpowers` (official plugin `superpowers@claude-plugins-official`). It is optional for repo/plugin users and must remain an on-demand process overlay, not a second team orchestrator.
+
+- Availability: verify the exact namespaced `superpowers:<skill>` is exposed before selecting it. Do not fall back silently to an unprefixed same-name personal skill because that copy may be older or from another source.
+- Precedence: user instructions, repo `AGENTS.md`, and this skill's ownership, approval, verification, and reporting rules override conflicting external steps.
+- Adopt selectively: `superpowers:brainstorming` for ambiguous new behavior; `superpowers:systematic-debugging` when its root-cause phases add value beyond `debug-mantra`; `superpowers:test-driven-development` for testable behavior changes; `superpowers:receiving-code-review` before applying ambiguous or questionable review feedback; `superpowers:writing-skills` for reusable behavior-shaping skill changes with justified before/after evaluation.
+- Avoid duplicate gates: normal `$dev-team` already owns planning, review, and fresh verification. Do not also invoke `superpowers:writing-plans`, `superpowers:requesting-code-review`, or `superpowers:verification-before-completion` unless the user explicitly requests the Superpowers variant or it adds a concrete missing check.
+- Do not route `superpowers:using-superpowers`, `superpowers:dispatching-parallel-agents`, `superpowers:subagent-driven-development`, or `superpowers:executing-plans` inside a running team; they duplicate orchestration and can conflict with one-owner-per-repo and live-slot rules.
+- Git safety: `superpowers:using-git-worktrees` and `superpowers:finishing-a-development-branch` require an explicit user request and one confirmed repo. A skill never grants permission to commit, push, merge, delete branches, or create/remove worktrees.
+- Visual companion: start the optional brainstorming companion only after user opt-in; it may make a version-only telemetry request. `SUPERPOWERS_DISABLE_TELEMETRY=1` disables that request.
+- Installation: never install, update, or vendor Superpowers automatically. If the exact namespaced skill is absent, use the local equivalent and report the missing optional skill.
+
+## Ponytail simplification routing
+
+External pack: `DietrichGebert/ponytail` (Codex plugin `ponytail@ponytail`). Use it on demand only; never preload it into the team.
+
+- Availability gate: verify the exact installed skill exists. A configured marketplace is not an installation. If absent, use local `scrutinize` + `review-diff` and mention Ponytail only as optional.
+- Trigger boundary: upstream advertises `ponytail` for any coding task, but this team does not auto-route it. Select one Ponytail skill only for the criteria below and report it as an external skill.
+- Implementation: route `ponytail` only for explicit simplest/minimal/YAGNI/dependency-avoidance requests or a concrete over-engineering risk in the approved plan.
+- Review: route `ponytail-review` to `code-reviewer` only after correctness/security/test review; it finds removable complexity and does not replace `scrutinize`.
+- Auxiliary commands: `ponytail-audit` is an explicit, read-only repo-wide complexity audit. Route `ponytail-debt`, `ponytail-gain`, or `ponytail-help` only when the user asks for that exact inventory, benchmark, or help output.
+- Safety: never simplify away validation, data-loss handling, security, accessibility, explicit requirements, or the smallest meaningful regression check.
+- Lifecycle: keep default mode `off`. Active mode injects into subagents; never install, activate, upgrade, remove, or set `PONYTAIL_SUBAGENT_MATCHER` automatically.
 
 ## Verification rules
 

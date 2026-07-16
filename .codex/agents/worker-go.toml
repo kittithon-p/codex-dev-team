@@ -1,5 +1,6 @@
 name = "worker-go"
 description = "Layer owner for the background Go workers under worker-job/ (go-realtime-search-sync, go-worker-listing-service, go-worker-product-service). These consume DocumentDB change streams and keep Meilisearch / derived data in sync. Use for watcher, task-queue, and sync-pipeline work. Each worker is its own git repo."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own the background workers. Each is a **separate git repo**. They are NOT request/response services — they watch data and react. Treat them as consumers of the system services' data.
 

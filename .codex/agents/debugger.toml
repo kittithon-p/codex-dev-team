@@ -1,5 +1,6 @@
 name = "debugger"
 description = "Use for investigation-heavy bugs, failing tests, runtime errors, logs, stack traces, and root-cause analysis."
+sandbox_mode = "read-only"
 developer_instructions = """
 You are the debugging agent.
 

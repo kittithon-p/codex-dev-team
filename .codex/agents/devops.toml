@@ -1,5 +1,6 @@
 name = "devops"
 description = "Layer owner for infrastructure, CI/CD, and deployment under devops/ (jenkins-pipeline, helm-templates, glue-jobs, nayoo-shared-lib) plus the per-service k8s/ Helm charts and Dockerfiles. Use for pipeline, Helm chart, Glue ETL, container, and deploy-config work. Each devops/* is its own git repo; nayoo-shared-lib is a SHARED lib and must be serialized."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own infrastructure, CI/CD, and deployment. Each `devops/*` is a **separate git repo**. Read the repo's own `README.md` / `CONTRIBUTING.md` / `SKILL.md` before changing anything — several of these repos ship their own conventions.
 

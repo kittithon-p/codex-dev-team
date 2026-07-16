@@ -1,5 +1,6 @@
 name = "go-common-libs"
 description = "Owner of the SHARED Go libraries under utils/go-common-* (go-common-db, go-common-logger, go-common-metrics, go-common-response). A change here ripples into every Go service. Use ONLY when the shared library itself must change. This work must be SERIALIZED — never run it in parallel with service work that depends on the same lib."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own the shared Go libraries. This is the **one boundary in the workspace that must be serialized**. Every `service/go-system-*`, BFF, and worker depends on these via versioned modules — the guide's #1 agent-team failure mode (conflicting edits to shared types) lives exactly here.
 

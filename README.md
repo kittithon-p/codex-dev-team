@@ -12,7 +12,7 @@ and verify the result, then report back.
 - `.agents/skills/` - repo-scoped Codex skills for `$dev-team` plus focused workflows.
 - `.codex/agents/` - custom Codex subagents such as `architect-planner`,
   `test-qa`, `code-reviewer`, `frontend-next`, `bff-go`, `system-service-go`,
-  `worker-go`, and reviewers.
+  `worker-go`, `code-mapper`, `docs-researcher`, `browser-debugger`, and reviewers.
 - `plugins/dev-team/` - installable Codex plugin package that bundles the same skills.
 - `.agents/plugins/marketplace.json` - repo marketplace entry for the plugin.
 - `.codex/config.toml` - shared agent concurrency defaults.
@@ -129,6 +129,34 @@ The main Codex session acts as the lead AGENT:
 Parallel work is supported when ownership does not overlap. Shared libraries,
 migrations, release steps, and cross-service contracts are serialized.
 
+## Runtime Policy
+
+- Codex loads global guidance first, then repository and nested `AGENTS.md`
+  guidance; the closest applicable file wins.
+- `.codex/config.toml` keeps `agents.max_threads = 6` and
+  `agents.max_depth = 1`. The thread limit is a ceiling, not a target.
+- Read-heavy mapping, documentation research, browser reproduction, and review
+  use explicit read-only agents. Parallel write work requires disjoint ownership.
+- Execpolicy `.rules` control how commands run outside the sandbox. An `allow`
+  rule never authorizes commit, push, merge, deploy, release, or external mutation.
+- Model, reasoning, service-tier, and Fast mode changes require an explicit user
+  request. The team does not persist speed/cost settings on its own.
+- [Superpowers](https://github.com/obra/superpowers) and
+  [Ponytail](https://github.com/DietrichGebert/ponytail) are optional,
+  availability-gated overlays. They are not bundled or installed by this
+  repository and never replace team ownership, review, verification, or safety
+  gates.
+
+These rules follow the official Codex documentation for
+[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md),
+[subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents),
+[speed](https://learn.chatgpt.com/docs/agent-configuration/speed), and
+[execpolicy rules](https://learn.chatgpt.com/docs/agent-configuration/rules).
+The `code-mapper`, `docs-researcher`, and `browser-debugger` roles were locally
+rewritten as narrow read-only agents after evaluating the MIT-licensed
+[VoltAgent subagent catalog](https://github.com/VoltAgent/awesome-codex-subagents);
+the catalog is a reference source, not a bundled dependency or trusted runtime.
+
 ## Safety Rules
 
 - Do not commit, push, deploy, merge, tag, release, or mutate external systems
@@ -150,9 +178,9 @@ plugins/dev-team/skills/<skill-name>/SKILL.md
 Then validate:
 
 ```bash
-python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/dev-team
-python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/dev-team/skills/dev-team
-python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/<skill-name>
-python3 /Users/kitti/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/dev-team/skills/<skill-name>
-python3 /Users/kitti/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/dev-team
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" .agents/skills/dev-team
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" plugins/dev-team/skills/dev-team
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" .agents/skills/<skill-name>
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" plugins/dev-team/skills/<skill-name>
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" plugins/dev-team
 ```

@@ -1,5 +1,6 @@
 name = "release-mr"
 description = "Workflow agent for the per-repo git-flow + GitLab MR process. Use at the END of a change, once code is reviewed and the user has EXPLICITLY asked to commit/push/open an MR. Handles branch hygiene, develop sync, glab MR creation, and the workspace's commit/MR conventions. One instance per repo."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You drive the release/MR workflow for ONE repo at a time. Every service is its **own git repo** on **GitLab** using **git-flow off `develop`**. The workspace root is NOT a git repo — always operate with `git -C <repo-path> ...` or from inside the repo.
 

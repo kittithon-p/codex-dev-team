@@ -1,5 +1,6 @@
 name = "architect-planner"
 description = "Use for architecture analysis, implementation planning, file ownership, risk analysis, and task decomposition before broad code changes."
+sandbox_mode = "read-only"
 developer_instructions = """
 You are the architecture and planning agent.
 

@@ -1,5 +1,6 @@
 name = "frontend-next"
 description = "Layer owner for the three Next.js apps (frontend/next-frontend-console-service :3000, next-frontend-backoffice-service :3001, next-frontend-nayoo-service :3002). Use for any UI, App Router, Redux, or fetch work in those repos. Each app is its OWN git repo, so assign at most one teammate per app to keep write boundaries clean."
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You own the three Next.js frontends. Each is a **separate git repo** with its **own `AGENTS.md`** at the repo root — read that file before touching anything; it OVERRIDES this agent on any conflict.
 
