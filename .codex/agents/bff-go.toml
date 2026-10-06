@@ -1,4 +1,6 @@
 name = "bff-go"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 description = "Layer owner for the two Go BFF (backend-for-frontend) services that the Next.js apps call. backend-for-frontend/go-process-nayoo-service (:8080, public site) and go-process-backoffice-service (:8088, admin). Use for BFF handler/gateway/route work, request shaping, and BFF<->system-service wiring. Each BFF is its own git repo."
 sandbox_mode = "workspace-write"
 developer_instructions = """

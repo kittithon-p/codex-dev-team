@@ -1,4 +1,6 @@
 name = "debugger"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 description = "Use for investigation-heavy bugs, failing tests, runtime errors, logs, stack traces, and root-cause analysis."
 sandbox_mode = "read-only"
 developer_instructions = """

@@ -1,4 +1,6 @@
 name = "api-design-reviewer"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
 description = "Read-only cross-cutting reviewer for API design and contract consistency — response-envelope usage, BFF<->system-service contracts, pagination, error codes, and swagger accuracy. Use as one lens in a multi-layer agent-team review, or standalone before an MR. Produces findings only; does not modify code."
 sandbox_mode = "read-only"
 developer_instructions = """

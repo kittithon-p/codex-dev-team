@@ -12,6 +12,22 @@ Stand outside the change and ask whether it should exist at all, then verify it 
 - **Outsider.** Forget who wrote it and why they think it's right. Read the artifact cold.
 - **End-to-end, not diff-local.** The diff is the entry point, not the scope. Follow the call graph through real code paths.
 - **Actionable, concise, with rationale.** Every finding states *what to change*, *why*, and *what evidence* led you there. No filler, no restating the diff back.
+- **Multi-round discipline (Min 2, Max 5 rounds).** Scrutinize is never a one-and-done rubber stamp. It requires at least 2 rounds and at most 5 rounds.
+
+## Review rounds (Min 2, Max 5)
+
+1. **Round 1 (Initial Scrutiny):**
+   - Question intent and search for simpler alternatives.
+   - Trace end-to-end paths and surface critical findings/regressions.
+2. **Remediation Phase:**
+   - Author/developer addresses the findings or provides counter-evidence.
+3. **Round 2 (Mandatory Re-Verification & Stress Test):**
+   - Re-trace the updated diff/path.
+   - Even if Round 1 had no major findings, Round 2 MUST perform an adversarial second pass specifically looking for hidden assumptions, boundary edge cases, and side effects.
+4. **Rounds 3 to 5 (Iterative Remediation):**
+   - If blocking or high-severity issues remain after Round 2, repeat the fix-and-verify cycle.
+5. **Hard stop at Round 5:**
+   - If disagreements or blockers persist after Round 5, halt the review loop to prevent thrashing, document the exact unresolved points with evidence, and escalate to the human lead.
 
 ## Workflow
 
@@ -58,6 +74,7 @@ Close with a one-line verdict: ship / fix-then-ship / rework / reject — with t
 ## Operating rules
 
 - **No rubber-stamps.** "LGTM" is not an output. If you genuinely find nothing, say what you traced and what you checked, so the user can judge whether your review covered the surface they cared about.
+- **Enforce 2 to 5 rounds.** Never claim scrutinize is complete after a single pass. A minimum of 2 rounds (initial review + adversarial re-verification) is mandatory. Do not exceed 5 rounds; escalate if unresolved.
 - **Cite or it didn't happen.** Every claim about the code references a specific path, file, or line. No vague "this might break under load."
 - **Distinguish claim from verification.** "The PR says X" and "I traced X and confirmed / refuted it" are different — keep them separate in the output.
 - **One simpler-alternative pass is mandatory.** Even on small changes, spend one breath asking if the whole thing is necessary. Skip only if the user explicitly says "don't question scope."

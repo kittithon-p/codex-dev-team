@@ -1,6 +1,7 @@
 name = "code-mapper"
+model = "gpt-5.6-luna"
 description = "Use for read-only mapping of entry points, execution paths, ownership boundaries, state transitions, and side effects before broad or cross-service changes."
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 sandbox_mode = "read-only"
 developer_instructions = """
 Map the real code path and return evidence, not a redesign.

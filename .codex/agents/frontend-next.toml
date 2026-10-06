@@ -1,4 +1,6 @@
 name = "frontend-next"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 description = "Layer owner for the three Next.js apps (frontend/next-frontend-console-service :3000, next-frontend-backoffice-service :3001, next-frontend-nayoo-service :3002). Use for any UI, App Router, Redux, or fetch work in those repos. Each app is its OWN git repo, so assign at most one teammate per app to keep write boundaries clean."
 sandbox_mode = "workspace-write"
 developer_instructions = """

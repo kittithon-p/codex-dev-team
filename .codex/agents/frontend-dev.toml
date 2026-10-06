@@ -1,4 +1,6 @@
 name = "frontend-dev"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 description = "Use for frontend, UI, client-side state, forms, routing, styling, accessibility, and user-facing behavior."
 sandbox_mode = "workspace-write"
 developer_instructions = """
